@@ -1,0 +1,93 @@
+- table: test_table_1
+  tests:
+    - query: "SELECT 'random_source' AS utmsource
+              FROM test_table_1
+              WHERE record_id = '123456'"
+      description: "Определение utmsource (источника) через теги"
+      column: "utmsource"
+      expected:
+        value: "random_source"
+    
+    - query: "SELECT COUNT(*) AS record_count 
+              FROM test_table_1 
+              WHERE creation_date >= '2025-01-01' 
+                    AND creation_date <= '2025-01-31' 
+                    AND pipeline_id = '987654'"
+      description: "Количество записей за январь 2025"
+      column: "record_count"
+      expected:
+        value: 500
+    
+    - query: "SELECT SUM(attribute) AS sum_attribute 
+              FROM test_table_1 
+              WHERE creation_date >= '2025-01-01' 
+                    AND creation_date <= '2025-01-31' 
+                    AND pipeline_id = '987654'"
+      description: "Сумма значений атрибута за январь 2025"
+      column: "sum_attribute"
+      expected:
+        value: 120
+    
+    - query: "SELECT COUNT(*) AS record_count
+              FROM test_table_1
+              WHERE creation_date = '2025-02-24'
+              AND pipeline_id = '987654'"
+      description: "Количество записей за 24.02.2025"
+      column: "record_count"
+      expected:
+        value: 15
+    
+    - query: "SELECT SUM(attribute) AS sum_attribute
+              FROM test_table_1
+              WHERE creation_date = '2025-02-24'
+              AND pipeline_id = '987654'"
+      description: "Сумма атрибута за 24.02.2025"
+      column: "sum_attribute"
+      expected:
+        value: 6
+        
+    - query: "SELECT FLOOR(EXTRACT(EPOCH FROM booking_date))::BIGINT AS booking_date
+              FROM test_table_1
+              WHERE record_id = '654321'"
+      description: "Проверка даты бронирования для записи"
+      column: "booking_date"
+      expected:
+        value: 1738786229
+        
+    - query: "SELECT attribute AS attribute
+              FROM test_table_1
+              WHERE record_id = '789123'"
+      description: "Проверка атрибута (значение = 0)"
+      column: "attribute"
+      expected:
+        value: 0
+        
+    - query: "SELECT date_attribute IS NULL AS date_attribute_is_null
+              FROM test_table_1
+              WHERE record_id = '789123'"
+      description: "Дата атрибута пустая, если значение = 0"
+      column: "date_attribute_is_null"
+      expected:
+        value: true
+        
+    - query: "SELECT (interaction + attribute + event) AS sum
+              FROM test_table_1
+              WHERE record_id = '456789'
+                    AND date_attribute = date_event
+                    AND date_attribute = date_interaction
+                    AND date_event = date_interaction"
+      description: "Когда запись создана с определенным событием"
+      column: "sum"
+      expected:
+        value: 3
+
+- table: test_table_2
+  tests:
+    - query: "SELECT SUM(events) AS sum_events
+              FROM test_table_2
+              WHERE month = '01.01.2025'
+              AND location = 'RandomLocation'"
+      description: "Количество событий в определенной локации за январь 2025"
+      column: "sum_events"
+      expected:
+        value: 30
